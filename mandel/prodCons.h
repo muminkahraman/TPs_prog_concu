@@ -8,7 +8,8 @@ struct rect{
 
 class prodCons {
     public :
+        int taille_max_queue = 5;
         std::priority_queue<rect> rects;
-        void put(rect r);
+        int put(rect r);
         rect get();
 };
