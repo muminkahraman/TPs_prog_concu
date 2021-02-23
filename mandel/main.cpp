@@ -12,6 +12,7 @@
 
 #include "mandel.h"
 #include "display.h"
+#include "prodCons.h"
 
 #include <iostream>
 #include <thread>
@@ -48,6 +49,8 @@ int get_slice() {
 }
 
 std::mutex s;
+prodCons prod;
+
 void compute_and_draw_slice(int slice_number) {
 	int y;
 	bool warning_emitted = false;
@@ -57,13 +60,25 @@ void compute_and_draw_slice(int slice_number) {
 	for (y = 0; y < height; y += rect_height) {
 		compute_rect(slice_number, y, warning_emitted);
 		// Try replacing the following by "draw_rect" (without _thread_safe):
-		s.lock();
-		draw_rect(slice_number, y);
-		s.unlock();
+		rect rect_put = rect(slice_number, y);
+		int sortie = -1;
+		while ((sortie =! 1)){
+			int sortie = prod.put(rect_put);
+		}
+
+		rect sortie_get = rect(-1,-1);
+		while ((sortie_get.estEgal(rect (-1,-1)))){
+			sortie_get = prod.get();
+		}
+		std::thread thread_affichage = std::thread(draw_rect, sortie_get.slice_number, sortie_get.y_start);
+		thread_affichage.join();
+		//draw_rect(sortie_get.slice_number, sortie_get.y_start);
+		
 	}
 	if (verbose > 0)
 		std::cout << "Finished slice " << slice_number << std::endl;
 }
+
 
 std::mutex m;
 void draw_screen_worker(int & comp_slice) {
