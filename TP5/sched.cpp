@@ -109,9 +109,13 @@ affiche_attribu_thread(const char *prefix)
  *                   0 est la seule priorité valide pour les SHED_OTHER
  */
 void change_ordonnancement(int policy, int priorite) {
-  int num_thread = pthread_self ();
-  int pthread_getschedparam(pthread_t num_thread ,int *policy ,struct sched_param *priorite);
-  int pthread_setschedparam(pthread_t target_thread ,int politique ,const struct sched_param *priorite )
+  pthread_t num_thread = pthread_self();
+  int oldpol;
+  struct sched_param existant;
+  pthread_getschedparam( num_thread,&oldpol , &existant);
+  existant.sched_priority = priorite;
+  pthread_setschedparam( num_thread,policy , &existant );
+
 }
 
 void fonction(int num, int nb_tours, int policy, int priorite) {
@@ -166,9 +170,9 @@ int main(int argc, char* argv[]) {
 
   std::vector<std::thread> tab;
   
-  tab.push_back(std::thread(fonction, tab.size(), nbtours, SCHED_RR, 5));
-  tab.push_back(std::thread(fonction, tab.size(), nbtours, SCHED_RR, 5));
-  tab.push_back(std::thread(fonction, tab.size(), nbtours, SCHED_FIFO, 5));
+  tab.push_back(std::thread(fonction, tab.size(), nbtours, SCHED_FIFO, 99));
+  tab.push_back(std::thread(fonction, tab.size(), nbtours, SCHED_FIFO, 99));
+  tab.push_back(std::thread(fonction, tab.size(), nbtours, SCHED_FIFO, 99));
 
   
   for (auto &th : tab) {
